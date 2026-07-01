@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clone Any Website"
+  short_description: "Rebuild public websites with disciplined visual QA"
+  default_prompt: "Use $clone-any-website to rebuild this public website faithfully in a clean local project."

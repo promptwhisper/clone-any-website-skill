@@ -1,0 +1,113 @@
+# Reconnaissance and Assets
+
+Read this reference when the target is interactive, canvas-based, asset-heavy,
+or unclear after a first screenshot.
+
+## Recon Checklist
+
+Capture findings into the target project's `docs/research/` folder.
+
+### Page and DOM
+
+- Record the final URL, title, language, viewport, and device scale.
+- Capture visible text, semantic roles, links, forms, and controls.
+- Record all script and stylesheet URLs.
+- Inspect computed typography, spacing, position, opacity, transforms, and
+  z-index for visible UI.
+- Identify overlays, modals, click-to-start gates, and pointer-blocking layers.
+
+### Canvas and WebGL
+
+- Count canvas elements and record their CSS and drawing-buffer sizes.
+- Check WebGL1 versus WebGL2.
+- Record the renderer string when available.
+- Inspect canvas attributes for engine clues.
+- Observe whether the canvas is blank until a gesture, focus, resize, or asset
+  completion event.
+- Compare screenshots rather than relying on `canvas.toDataURL()` when
+  `preserveDrawingBuffer` is false.
+
+### Interaction
+
+- Enumerate hover, click, drag, wheel, keyboard, touch, and audio-unlock paths.
+- Capture each meaningful state at a stable point in its animation.
+- Measure click-versus-drag thresholds and timing rather than describing them
+  only as "small" or "fast".
+- Test desktop and mobile independently; do not infer one from the other.
+
+### Network
+
+- Record every request needed by the primary workflow.
+- Group by code, geometry, image, texture, audio, video, font, decoder, worker,
+  and API.
+- Note content types, sizes, cache behavior, and variant selection.
+- Distinguish required assets from speculative or unused URLs.
+
+## Asset Mirroring
+
+Mirror the public static assets required by the reproduced experience into the
+local project. Keep the final runtime independent from the original host.
+
+- Preserve formats, paths, variants, and compression when they affect behavior.
+- Download only files used by the implemented experience.
+- Do not acquire private, authenticated, paywalled, or user-specific content.
+- Record the original URL and creator attribution for each asset group.
+- Keep research bundles separate from shipped runtime assets.
+
+## Asset Inventory
+
+Track at least:
+
+- local output path;
+- source URL or source package;
+- role in the experience;
+- original URL and creator attribution;
+- checksum when deterministic mirroring matters.
+
+Keep the downloader as the source of truth for mirrored runtime assets. Make it:
+
+- bounded to 4 to 6 concurrent requests;
+- idempotent;
+- able to skip existing files;
+- able to force refresh explicitly;
+- strict about HTTP status and expected content type;
+- deterministic about output paths.
+
+## Binary Formats
+
+Prefer standard loaders for GLB, glTF, FBX, HDR, EXR, KTX2, and common audio.
+
+When a file wraps a standard codec in a custom container:
+
+1. Find the client worker or loader that parses the framing.
+2. Document only the container structure and attribute map.
+3. Reuse the matching standard decoder or the decoder shipped for that public
+   asset format.
+4. Write a thin clean wrapper around the decoder.
+5. Preserve unknown attributes such as `surfaceId`, `elementId`, `batchId`,
+   `dist`, skin indices, and skin weights.
+6. Validate decoded bounds, index count, attribute count, and rendering.
+
+A common custom Draco framing is either:
+
+- a raw Draco stream whose metadata contains an attribute map; or
+- a little-endian JSON length, JSON metadata, then the Draco stream.
+
+Never assume that pattern. Confirm the actual framing.
+
+## Color Sampling
+
+Rendered color may differ from source color because of tone mapping, output
+color space, LUTs, grain, blending, and browser compositing. Sample flat regions
+from the final screenshot:
+
+```python
+from PIL import Image
+
+image = Image.open("original.png").convert("RGB")
+red, green, blue = image.getpixel((x, y))
+print(f"#{red:02x}{green:02x}{blue:02x}")
+```
+
+Use several nearby pixels when compression, antialiasing, or grain is present.
+Record both the sampled output and the implementation value that produced it.
