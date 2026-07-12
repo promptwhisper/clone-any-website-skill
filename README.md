@@ -8,12 +8,14 @@ It covers:
 - stack triage for DOM, Three.js, Pixi.js, and Canvas2D targets;
 - browser reconnaissance and responsive state capture;
 - local static-asset mirroring;
+- video-first MP4/WebM/HLS reconstruction with frame-aligned visual QA;
 - client-bundle analysis as a behavioral reference;
 - clean-room implementation;
 - screenshot, interaction, network, build, and deployment validation.
 
-The skill is based on practical lessons from interactive WebGL scenes, skinned
-characters, physics toys, sprite-atlas games, and animated screen toys.
+The skill is based on practical lessons from video-led product pages,
+interactive WebGL scenes, skinned characters, physics toys, sprite-atlas games,
+and animated screen toys.
 
 ## Install
 
@@ -39,6 +41,7 @@ It also triggers on requests such as:
 
 - "复刻这个公开网站"
 - "Clone this interactive Three.js page"
+- "Rebuild this HLS video landing page frame by frame"
 - "Port this Pixi screen toy to TypeScript"
 - "Rebuild this page with pixel-accurate responsive behavior"
 
@@ -55,10 +58,20 @@ clone-any-website/
   SKILL.md
   agents/openai.yaml
   references/
+    bundle-analysis.md
+    pixi-canvas.md
+    qa-and-gotchas.md
+    recon-and-assets.md
+    three-r3f.md
+    video-first.md
+  scripts/
+    compare-screenshots.py
 ```
 
 `SKILL.md` contains the core workflow. Detailed 3D, 2D, reconnaissance,
-bundle-analysis, and QA guidance is loaded from `references/` only when needed.
+video-first, bundle-analysis, and QA guidance is loaded from `references/` only
+when needed. The screenshot comparator reports repeatable pixel-difference
+metrics and can emit a heatmap for fixed states and media times.
 
 ## License
 

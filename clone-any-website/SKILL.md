@@ -1,6 +1,6 @@
 ---
 name: clone-any-website
-description: Rebuild public websites as clean, maintainable local projects with disciplined visual and interaction fidelity. Use when the user asks to clone, replicate, reproduce, port, or study a public website, including Three.js/WebGL/R3F scenes, Pixi.js or Canvas2D toys, animated product pages, and phrases such as "复刻这个网站", "clone this site", "pixel-perfect copy", "rebuild this page", or "rewrite this screen toy". Covers stack triage, browser reconnaissance, local asset mirroring, client-bundle analysis as a behavioral reference, clean-room implementation, responsive QA, and deployment checks.
+description: Rebuild public websites as clean, maintainable local projects with disciplined visual, interaction, and media fidelity. Use when the user asks to clone, replicate, reproduce, port, or study a public website, including video-led landing pages, MP4/WebM or HLS experiences, scroll-scrubbed and masked video, Three.js/WebGL/R3F scenes, Pixi.js or Canvas2D toys, animated product pages, and phrases such as "复刻这个网站", "clone this site", "pixel-perfect copy", "rebuild this page", or "rewrite this screen toy". Covers stack triage, browser reconnaissance, licensed asset mirroring, deterministic media-state capture, client-bundle analysis as a behavioral reference, clean-room implementation, responsive QA, and deployment checks.
 ---
 
 # Clone Any Website
@@ -21,8 +21,8 @@ Before implementation:
 3. Do not ship the target's compiled JavaScript, source maps, or proprietary
    source code. Extract observable behavior, constants, public interfaces, and
    asset relationships, then reimplement them.
-4. Mirror only the public static assets needed by the reproduced experience.
-   Record their source and keep runtime requests local.
+4. Mirror only public runtime assets the user is authorized to reuse. Record
+   their source and keep runtime requests local.
 5. Do not represent the clone as official or affiliated with the original
    creator.
 
@@ -31,8 +31,12 @@ Before implementation:
 - Read the original before choosing a stack.
 - Match observable pixels and behavior, not internal architecture.
 - Decide exact versus approximate per subsystem and record the decision.
+- Separate the fidelity path from resilience improvements that the target does
+  not visibly demonstrate.
 - Extract names and constants; do not guess them.
 - Change one high-impact delta at a time, capture again, and compare.
+- Freeze viewport, interaction, and media time before calling a comparison
+  pixel-accurate.
 - Keep the original host out of the final runtime network log.
 - Preserve the existing repository's conventions when extending a project.
 
@@ -47,6 +51,8 @@ driving the browser. Capture enough evidence to classify the target:
 - script and stylesheet URLs;
 - DOM text volume and visible interactive controls;
 - canvas count, canvas dimensions, and WebGL availability;
+- video count, source topology, current source, playback state, intrinsic size,
+  crop, masks, and HLS/MSE network clues;
 - renderer or library clues from script names and runtime objects;
 - mobile behavior at approximately 390 x 844.
 
@@ -57,6 +63,7 @@ Choose the smallest appropriate stack:
 | Three.js or complex 3D scene | Existing stack, or React + TypeScript + R3F |
 | Pixi.js sprite game | Vite + TypeScript + matching Pixi major |
 | Canvas2D animation | Vite + TypeScript |
+| Video-led DOM or product page | Existing stack, native video, and HLS only when observed |
 | DOM-heavy product page | Existing stack, or React + TypeScript + CSS |
 | Mostly text | Use a text extraction workflow instead |
 
@@ -64,6 +71,8 @@ Match the original library's major version when behavior depends on it.
 
 Read [references/recon-and-assets.md](references/recon-and-assets.md) before
 capturing a complex site or handling nonstandard assets.
+Read [references/video-first.md](references/video-first.md) when video controls
+composition, interaction, responsive behavior, or the comparison timeline.
 
 ### 2. Establish a Baseline
 
@@ -79,6 +88,7 @@ Record:
 
 - page topology and responsive states;
 - asset inventory and source paths;
+- media topology, crop, clock owner, and fixed comparison times;
 - visual tokens and sampled output colors;
 - interaction states and thresholds;
 - extracted constants;
@@ -101,6 +111,8 @@ Extract by subsystem:
 - renderer, color space, tone mapping, exposure, DPR, shadows;
 - scene units, camera, lights, background or sky;
 - layout formulas and responsive gates;
+- video sources and variants, player lifecycle, crop/compositing, and mapping
+  from time, scroll, pointer, or state to the presented frame;
 - postprocessing and material parameters;
 - interactions, thresholds, easing, timing, and audio cues;
 - loader task counts and mobile performance branches.
@@ -113,14 +125,14 @@ detailed extraction checklist.
 
 Implement in this order unless the target suggests otherwise:
 
-1. viewport, renderer, camera, background, and lighting;
-2. tone mapping and postprocessing;
-3. primary geometry, imagery, typography, and materials;
-4. main animation and character state;
-5. physics or spatial interaction;
-6. pointer, keyboard, touch, and accessibility behavior;
-7. audio and loading progress;
-8. secondary props, particles, and polish.
+1. viewport, page composition, background, and layer stack;
+2. primary canvas or media surface, including camera/framing or video crop;
+3. global color management, lighting, overlays, and postprocessing;
+4. primary geometry, imagery, typography, and materials;
+5. main animation, media timeline, and character or component state;
+6. physics or spatial interaction;
+7. pointer, keyboard, touch, and accessibility behavior;
+8. audio, loading/error states, secondary props, particles, and polish.
 
 For each iteration:
 
@@ -133,6 +145,8 @@ For each iteration:
 For 3D work, read [references/three-r3f.md](references/three-r3f.md).
 For Pixi.js or Canvas2D work, read
 [references/pixi-canvas.md](references/pixi-canvas.md).
+For video-led work, implement media geometry, crop, compositing, and clock
+ownership before secondary polish.
 
 ### 5. Validate
 
@@ -145,6 +159,8 @@ Validate at minimum:
 - loading, empty, error, reduced-performance, and muted states;
 - console errors and network failures;
 - zero runtime requests to the original host;
+- frame-aligned captures at fixed media times, scroll, pointer, and playback
+  state for every video-led surface;
 - nonblank canvas pixels and stable framing for WebGL scenes;
 - lint, typecheck, tests, and production build;
 - production base paths when deploying below a subpath.
@@ -158,6 +174,8 @@ Leave the target project with:
 
 - maintainable source code and only required dependencies;
 - an asset source inventory;
+- media evidence, fixed capture states, and retained comparison metrics for
+  video-led work;
 - reproducible asset acquisition;
 - run, check, build, and deployment instructions;
 - an attribution link when required by license or requested by the user;

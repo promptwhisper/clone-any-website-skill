@@ -18,6 +18,15 @@ Compare in this order:
 
 Fix one major delta per loop.
 
+## Screenshot Metrics
+
+Use the bundled
+[screenshot comparator](../scripts/compare-screenshots.py) for repeatable RGB
+metrics, masks, heatmaps, and calibrated CI gates. A run without `--max-*`
+options is measurement-only; derive project gates from repeated captures of a
+stable target state. For decoded-video capture timing and crop checks, follow
+[Video-First Website Reproduction](video-first.md).
+
 ## Required States
 
 - initial loading;
