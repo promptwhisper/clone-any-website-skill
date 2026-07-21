@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare two same-size screenshots and optionally emit a heatmap.
+"""Compare screenshots, with explicit crop/DPR normalization and heatmaps.
 
 Requires Pillow. Exit 0 when configured gates pass, 1 when a gate fails,
 and 2 for invalid input or a missing dependency.
@@ -24,6 +24,25 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("reference", type=Path)
     parser.add_argument("candidate", type=Path)
+    parser.add_argument(
+        "--reference-crop",
+        nargs=4,
+        type=int,
+        metavar=("X", "Y", "WIDTH", "HEIGHT"),
+        help="Crop the reference before comparison.",
+    )
+    parser.add_argument(
+        "--candidate-crop",
+        nargs=4,
+        type=int,
+        metavar=("X", "Y", "WIDTH", "HEIGHT"),
+        help="Crop the candidate before comparison.",
+    )
+    parser.add_argument(
+        "--resize-reference-to-candidate",
+        action="store_true",
+        help="Resize the cropped reference to candidate dimensions with Lanczos.",
+    )
     parser.add_argument(
         "--mask",
         type=Path,
@@ -85,6 +104,19 @@ def load_rgb(path: Path):
     return Image.open(path).convert("RGB")
 
 
+def crop_image(image, crop: list[int] | None, label: str):
+    if crop is None:
+        return image
+    x, y, width, height = crop
+    if x < 0 or y < 0 or width <= 0 or height <= 0:
+        raise ValueError(f"{label} crop must use nonnegative x/y and positive size")
+    if x + width > image.width or y + height > image.height:
+        raise ValueError(
+            f"{label} crop {crop} exceeds image size {image.size}"
+        )
+    return image.crop((x, y, x + width, y + height))
+
+
 def main() -> int:
     args = parse_args()
     if not 0 <= args.pixel_threshold <= 255:
@@ -98,6 +130,15 @@ def main() -> int:
 
     reference = load_rgb(args.reference)
     candidate = load_rgb(args.candidate)
+    original_reference_size = reference.size
+    original_candidate_size = candidate.size
+    reference = crop_image(reference, args.reference_crop, "Reference")
+    candidate = crop_image(candidate, args.candidate_crop, "Candidate")
+
+    if args.resize_reference_to_candidate and reference.size != candidate.size:
+        resampling = getattr(Image, "Resampling", Image)
+        reference = reference.resize(candidate.size, resampling.LANCZOS)
+
     if reference.size != candidate.size:
         raise ValueError(
             f"Screenshot sizes differ: reference={reference.size}, candidate={candidate.size}"
@@ -158,6 +199,19 @@ def main() -> int:
     report = {
         "reference": str(args.reference),
         "candidate": str(args.candidate),
+        "preprocessing": {
+            "reference_original_size": {
+                "width": original_reference_size[0],
+                "height": original_reference_size[1],
+            },
+            "candidate_original_size": {
+                "width": original_candidate_size[0],
+                "height": original_candidate_size[1],
+            },
+            "reference_crop": args.reference_crop,
+            "candidate_crop": args.candidate_crop,
+            "reference_resized_to_candidate": args.resize_reference_to_candidate,
+        },
         "mask": str(args.mask) if args.mask else None,
         "size": {"width": reference.width, "height": reference.height},
         "included_pixels": included_pixels,

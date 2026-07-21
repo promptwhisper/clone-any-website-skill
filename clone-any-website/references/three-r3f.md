@@ -4,6 +4,7 @@
 
 - Recommended project shape and loading
 - Renderer, materials, geometry, and animation
+- GLB scene inspection and surgical asset editing
 - Camera-relative elements and physics
 - Performance and canvas validation
 
@@ -100,6 +101,33 @@ Inspect actual attributes. If geometry represents multiple logical objects:
 4. apply the source layout formula;
 5. verify every element, not only the first.
 
+## GLB Scene Inspection and Surgical Asset Editing
+
+Visible labels, logos, and props may be baked geometry rather than DOM
+or runtime text. Inspect the scene graph before adding an overlay. Record:
+
+- node and mesh names;
+- parent order, local translation, rotation, and scale;
+- accessor bounds, indices, normals, UV ranges, and material name;
+- `extras` / `userData` used by gameplay;
+- collider children and physics naming conventions;
+- compression extensions and the runtime-selected asset variant.
+
+Prefer a surgical glTF edit over re-exporting the whole scene through another
+authoring tool. Preserve unrelated nodes, hierarchy, materials, animations,
+extras, and extension contracts. When the project ships both `model.glb` and a
+compressed variant, update and load-test both or deliberately change the loader
+to one documented source of truth.
+
+Palette-atlas assets often use a constant UV for an entire mesh. Preserve that
+UV on every generated vertex; assigning the material name without its authored
+UV can sample the wrong palette color.
+
+When editing Draco assets through glTF-Transform, register the matching decoder
+and encoder. Inspect the written file again: newly generated non-indexed
+primitives may remain uncompressed even when the rest of the file uses Draco.
+Accept the size delta explicitly or run a compatible optimization pass.
+
 ## Camera-Relative Elements
 
 For an element that stays in front of the camera while the world moves, keep it
@@ -122,6 +150,16 @@ an element to it can make the element disappear.
   motion.
 - Change damping after impact when the original settles quickly.
 - Validate edge-on, sliced, or fractured faces with the intended material side.
+- When replacing a visible physics-backed mesh, preserve its node name, extras,
+  collider ownership, initial transform, and reset registration.
+
+## Audio and Slow-Load Stability
+
+Do not run per-frame audio setters against sounds that have not loaded. Some
+audio libraries queue `rate`, `volume`, `mute`, or `seek` calls until readiness;
+issuing them every render tick can produce a large deferred queue and recursive
+overflow on a slow first load. Gate spatial/rate/volume updates on the library's
+loaded state, then verify mute, blur/focus, and click-to-start audio unlock.
 
 ## Performance
 

@@ -47,6 +47,8 @@ Before implementation:
 - Change one high-impact delta at a time, capture again, and compare.
 - Freeze viewport, interaction, and media time before calling a comparison
   pixel-accurate.
+- Measure the target's own frame-to-frame variance before setting a pixel gate
+  for time-, random-, physics-, or GPU-driven scenes.
 - Keep the original host out of the final runtime network log.
 - Preserve the existing repository's conventions when extending a project.
 - Reproduce observed states; do not invent loading, error, accessibility, or
@@ -202,7 +204,9 @@ For each iteration:
 4. Fix it.
 5. Capture again.
 
-For 3D work, read [references/three-r3f.md](references/three-r3f.md).
+For 3D work, read [references/three-r3f.md](references/three-r3f.md). Read its
+GLB asset-surgery section before replacing baked geometry, compressed models,
+or physics-backed props.
 For Pixi.js or Canvas2D work, read
 [references/pixi-canvas.md](references/pixi-canvas.md).
 For video-led work, implement media geometry, crop, compositing, and clock
@@ -231,6 +235,9 @@ Maintain a state-and-viewport validation matrix rather than relying on one
 full-page screenshot. Treat a state as verified only when the original and clone
 were captured with the same viewport, scroll position, input state, cursor or
 touch position, and animation time or observable readiness condition.
+For nondeterministic scenes, capture repeated samples of the target and clone,
+mask or separately score dynamic regions, and keep the acceptance gate above
+the measured target self-variance.
 Use `assets/research-templates/VALIDATION_MATRIX.md` when the target has several
 viewports or interaction states. Define project-specific spatial, timing,
 animation, and physics tolerances before judging an approximation; do not claim
@@ -248,6 +255,8 @@ Leave the target project with:
 - media evidence, fixed capture states, and retained comparison metrics for
   video-led work;
 - reproducible asset acquisition;
+- synchronized runtime variants when the loader can choose compressed versus
+  uncompressed geometry, textures, or media;
 - run, check, build, and deployment instructions;
 - an attribution link when required by license or requested by the user;
 - a clear disclaimer when the project is an unofficial study;

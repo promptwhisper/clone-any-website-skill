@@ -96,6 +96,7 @@ Track at least:
 - state, viewport, or performance variant that selects it;
 - original URL and creator attribution;
 - checksum when deterministic mirroring matters.
+- license and selected compressed/uncompressed variant.
 
 Keep the downloader as the source of truth for mirrored runtime assets. Make it:
 

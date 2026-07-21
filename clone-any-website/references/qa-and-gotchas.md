@@ -44,6 +44,23 @@ other nondeterministic pixels. For physics, compare contact timing, trajectory,
 settling, and end-state envelopes rather than demanding identical floating-point
 simulation across browsers.
 
+For a dynamic WebGL/WebGPU target, capture the same nominal target state at
+least three times. Compare those target captures to estimate a self-variance
+floor. Then:
+
+- score static and dynamic masks separately;
+- keep structural framing and UI gates strict;
+- set foliage, weather, particles, physics, and temporal-AA gates above the
+  target's own variance;
+- report both global and masked metrics;
+- never describe a single dynamic frame as zero-diff or pixel-identical.
+
+When the reference includes browser chrome or was captured at a different DPR,
+crop to the content viewport first. Resize only after proving the CSS viewport
+and aspect ratio match; otherwise resizing can hide a layout error. Use the
+comparator's explicit crop and reference-resize options and retain the prepared
+dimensions in the report.
+
 ## Screenshot Metrics
 
 Use the bundled
@@ -52,6 +69,16 @@ metrics, masks, heatmaps, and calibrated CI gates. A run without `--max-*`
 options is measurement-only; derive project gates from repeated captures of a
 stable target state. For decoded-video capture timing and crop checks, follow
 [Video-First Website Reproduction](video-first.md).
+
+Crop arguments use `X Y WIDTH HEIGHT`. For a browser-chrome reference captured
+at a different DPR:
+
+```bash
+python scripts/compare-screenshots.py reference.png candidate.png \
+  --reference-crop 0 174 3840 1756 \
+  --resize-reference-to-candidate \
+  --pixel-threshold 24 --output heatmap.png
+```
 
 ## Required States
 
@@ -85,6 +112,7 @@ satisfy this list.
 | Edge-on surface disappears | Wrong side or winding | Check `DoubleSide` only where intended |
 | Shader fails to compile | MRT, UBO, GLSL version, or engine include dependency | Isolate or approximate |
 | Phone overheats | Desktop postprocessing and DPR | Add a low-tier branch |
+| Slow first load ends in audio recursion | Per-frame setters queued before sound readiness | Gate audio updates on loaded state |
 
 ## Physics
 
@@ -104,6 +132,8 @@ satisfy this list.
 - Use the browser screenshot pipeline for WebGL.
 - Capture a second frame and compare pixels to prove animation is running.
 - Inspect console errors and failed requests after each major state.
+- Distinguish retained log history from the current page load or bundle before
+  declaring a new runtime error.
 - Use the same font readiness, scroll position, focus, cursor or touch position,
   and observable animation state on the original and clone.
 - Check for horizontal overflow and layout shift after fonts and responsive
