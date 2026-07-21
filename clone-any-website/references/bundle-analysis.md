@@ -1,5 +1,11 @@
 # Bundle Analysis
 
+## Contents
+
+- Purpose and inspection method
+- Extraction checklist
+- Exact-versus-approximate decisions
+
 Read this reference when observable behavior cannot be reproduced reliably from
 screenshots and interaction alone.
 
@@ -83,8 +89,10 @@ Cineon 3, ACES 4, AgX 6, and Neutral 7. Confirm against the version in use.
 
 Treat shared UBOs, MRT outputs, and engine-global shader includes as a cost
 signal. Approximate with standard materials and a clean custom effect when the
-rendered result can match. Port a unique shader only when the effect cannot be
-reproduced otherwise.
+rendered result can match. Independently reimplement a unique effect from
+observed output and extracted parameters. Adapt shader source only when its
+license or the user's authorization permits it; otherwise record that exact
+fidelity is blocked and use an explicit approximation.
 
 ### Geometry and Animation
 

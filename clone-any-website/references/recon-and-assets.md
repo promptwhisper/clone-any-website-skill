@@ -3,6 +3,13 @@
 Read this reference when the target is interactive, canvas-based, asset-heavy,
 or unclear after a first screenshot.
 
+## Contents
+
+- Recon checklist
+- Asset mirroring and inventory
+- Binary formats
+- Color sampling
+
 ## Recon Checklist
 
 Capture findings into the target project's `docs/research/` folder.
@@ -10,6 +17,8 @@ Capture findings into the target project's `docs/research/` folder.
 ### Page and DOM
 
 - Record the final URL, title, language, viewport, and device scale.
+- Freeze browser, zoom, locale, motion preference, consent state, experiment or
+  geo variant, and font readiness for repeatable captures.
 - Capture visible text, semantic roles, links, forms, and controls.
 - Record all script and stylesheet URLs.
 - Inspect computed typography, spacing, position, opacity, transforms, and
@@ -30,10 +39,22 @@ Capture findings into the target project's `docs/research/` folder.
 ### Interaction
 
 - Enumerate hover, click, drag, wheel, keyboard, touch, and audio-unlock paths.
+- Scroll through each region before clicking controls so scroll-driven state is
+  not mistaken for tabs or an accordion.
+- Classify each region as static, scroll-driven, click-driven, hover-driven,
+  pointer-driven, keyboard-driven, time-driven, physics-driven, or mixed.
 - Capture each meaningful state at a stable point in its animation.
 - Measure click-versus-drag thresholds and timing rather than describing them
   only as "small" or "fast".
+- For each transition, capture before and after state, trigger, threshold,
+  duration, delay, easing, interruption, and reset behavior.
 - Test desktop and mobile independently; do not infer one from the other.
+- Test tablet when it has a distinct layout, and probe around suspected
+  breakpoints instead of assuming framework defaults.
+
+Record the sweep in `docs/research/BEHAVIORS.md`. Record the ordered sections,
+layering, scroll owner, and cross-section dependencies in
+`docs/research/PAGE_TOPOLOGY.md` before assigning implementation boundaries.
 
 ### Network
 
@@ -42,6 +63,17 @@ Capture findings into the target project's `docs/research/` folder.
   and API.
 - Note content types, sizes, cache behavior, and variant selection.
 - Distinguish required assets from speculative or unused URLs.
+
+### DOM Media and Layers
+
+- Enumerate `<img>`, `<picture>`, `<video>`, inline SVG, CSS background images,
+  pseudo-elements, masks, and absolutely positioned overlays.
+- Record intrinsic dimensions, responsive candidates, crop, object position,
+  autoplay, looping, and poster behavior.
+- Inspect the full composition tree; do not assume a visual that looks like one
+  image is stored as one asset.
+- Distinguish rendered animation or video from a UI that should be rebuilt as
+  interactive HTML.
 
 ## Asset Mirroring
 
@@ -61,6 +93,7 @@ Track at least:
 - local output path;
 - source URL or source package;
 - role in the experience;
+- state, viewport, or performance variant that selects it;
 - original URL and creator attribution;
 - checksum when deterministic mirroring matters.
 
@@ -71,6 +104,9 @@ Keep the downloader as the source of truth for mirrored runtime assets. Make it:
 - able to skip existing files;
 - able to force refresh explicitly;
 - strict about HTTP status and expected content type;
+- bounded by explicit request timeout, retry and backoff limits, redirect
+  policy, and per-file or total-size guardrails;
+- explicit about checksum mismatch and partial-file cleanup;
 - deterministic about output paths.
 
 ## Binary Formats

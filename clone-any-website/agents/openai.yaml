@@ -1,4 +1,4 @@
 interface:
   display_name: "Clone Any Website"
-  short_description: "Video-aware public website cloning with deterministic QA"
-  default_prompt: "Use $clone-any-website to rebuild this public website faithfully with clean-room code and deterministic visual/media QA."
+  short_description: "Interaction- and video-aware website cloning with visual QA"
+  default_prompt: "Use $clone-any-website to faithfully rebuild this public website with clean-room specifications and deterministic visual, interaction, and media QA."

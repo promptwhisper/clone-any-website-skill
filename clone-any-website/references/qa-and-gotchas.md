@@ -3,10 +3,17 @@
 Read this reference before final validation or when the clone is close but still
 feels wrong.
 
+## Contents
+
+- Comparison loop and required states
+- WebGL, animation, and physics gotchas
+- Browser, network, build, and deployment checks
+- Final report
+
 ## Comparison Loop
 
 Use identical viewport, device scale, state, cursor position, and elapsed time.
-Compare in this order:
+For graphics-heavy targets, compare in this order:
 
 1. framing and background;
 2. global color grade;
@@ -17,6 +24,25 @@ Compare in this order:
 7. secondary effects.
 
 Fix one major delta per loop.
+
+For DOM-heavy targets, compare in this order:
+
+1. document flow, section heights, and scroll ownership;
+2. fonts, line wrapping, and dominant media crops;
+3. grids, spacing, sticky and fixed geometry;
+4. controls, borders, shadows, and compositing;
+5. responsive reordering and visibility;
+6. transitions and micro-interactions.
+
+Maintain a matrix of viewport × interaction state. A full-page screenshot is
+necessary for flow but does not verify hover, focus, open, active, error, or
+time-dependent states.
+
+Before comparison, record project-specific spatial and timing tolerances plus
+masking rules for grain, antialiasing, randomized particles, video frames, or
+other nondeterministic pixels. For physics, compare contact timing, trajectory,
+settling, and end-state envelopes rather than demanding identical floating-point
+simulation across browsers.
 
 ## Screenshot Metrics
 
@@ -36,8 +62,14 @@ stable target state. For decoded-video capture timing and crop checks, follow
 - completion or reset;
 - muted and unmuted;
 - desktop and mobile;
+- tablet when it has an intermediate layout;
 - reduced-performance branch;
+- reduced-motion branch when supported;
 - missing-asset or decoder error during development.
+- WebGL unavailable or context lost when the target handles it.
+
+Mark an unobserved state `N/A` with evidence; do not add behavior merely to
+satisfy this list.
 
 ## WebGL and Animation
 
@@ -72,6 +104,10 @@ stable target state. For decoded-video capture timing and crop checks, follow
 - Use the browser screenshot pipeline for WebGL.
 - Capture a second frame and compare pixels to prove animation is running.
 - Inspect console errors and failed requests after each major state.
+- Use the same font readiness, scroll position, focus, cursor or touch position,
+  and observable animation state on the original and clone.
+- Check for horizontal overflow and layout shift after fonts and responsive
+  media finish loading.
 
 ## Network
 
@@ -110,8 +146,11 @@ State:
 
 - public or local URL;
 - implemented scope;
+- number of pages, components or scene subsystems, specifications, and mirrored
+  assets;
 - exact and approximate subsystems;
-- checks run;
-- desktop and mobile verification;
+- checks passed, failed, and skipped;
+- desktop, tablet when applicable, and mobile verification;
+- interaction states verified and not verified;
 - remaining visual differences;
 - asset licensing or attribution constraints.

@@ -1,5 +1,12 @@
 # Three.js and R3F
 
+## Contents
+
+- Recommended project shape and loading
+- Renderer, materials, geometry, and animation
+- Camera-relative elements and physics
+- Performance and canvas validation
+
 Read this reference for WebGL, Three.js, React Three Fiber, skinned characters,
 custom materials, or 3D physics.
 
@@ -127,6 +134,9 @@ an element to it can make the element disappear.
 - Drop normal passes, MSAA, outlines, or expensive particles on low tier.
 - Add touch controls only when the target supports mobile interaction.
 - Dispose render targets, materials, and generated geometry.
+- Define an evidence-based frame-time, load-time, memory, or draw-call budget
+  when performance is part of the observed experience; do not call a branch
+  optimized without a recorded target and measurement.
 
 ## Canvas Validation
 
@@ -136,6 +146,8 @@ Confirm:
 - it remains nonblank after resize and interaction;
 - the main subject stays framed at desktop and mobile sizes;
 - dynamic content moves between captures;
+- WebGL-unavailable and context-loss behavior matches the observed target when
+  it provides a fallback or recovery path;
 - no UI overlaps the canvas incorrectly;
 - all assets load from the clone's origin.
 

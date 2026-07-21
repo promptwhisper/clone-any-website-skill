@@ -7,6 +7,10 @@ It covers:
 
 - stack triage for DOM, Three.js, Pixi.js, and Canvas2D targets;
 - browser reconnaissance and responsive state capture;
+- interaction-model discovery for scroll, click, hover, pointer, time, and
+  mixed behaviors;
+- specification-driven DOM and scene reconstruction with reusable research
+  templates;
 - local static-asset mirroring;
 - video-first MP4/WebM/HLS reconstruction with frame-aligned visual QA;
 - client-bundle analysis as a behavioral reference;
@@ -57,8 +61,10 @@ clean source code instead of redistributing the original compiled application.
 clone-any-website/
   SKILL.md
   agents/openai.yaml
+  assets/research-templates/
   references/
     bundle-analysis.md
+    dom-pages.md
     pixi-canvas.md
     qa-and-gotchas.md
     recon-and-assets.md
@@ -68,10 +74,11 @@ clone-any-website/
     compare-screenshots.py
 ```
 
-`SKILL.md` contains the core workflow. Detailed 3D, 2D, reconnaissance,
+`SKILL.md` contains the core workflow. Detailed DOM, 3D, 2D, reconnaissance,
 video-first, bundle-analysis, and QA guidance is loaded from `references/` only
-when needed. The screenshot comparator reports repeatable pixel-difference
-metrics and can emit a heatmap for fixed states and media times.
+when needed. Research templates become auditable implementation contracts. The
+screenshot comparator reports repeatable pixel-difference metrics and can emit
+a heatmap for fixed states and media times.
 
 ## License
 
